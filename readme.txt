@@ -14,4 +14,4 @@ receber uma entrada valida e mostrar a solução do jogo na tela.
 
 -PARA EXECUTAR O PROGRAMA
   Digite no terminal o seguinte comando:
- -putStrLn (printarSudoku (resolver' sudoku))
+  putStrLn (printarSudoku (resolver' sudoku))
