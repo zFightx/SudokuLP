@@ -1,3 +1,5 @@
+-- como executar: putStrLn (printarSudoku (resolver' sudoku))
+
 sudoku = [5, 3, 0, 0, 7, 0, 0, 0, 0,
           6, 0, 0, 1, 9, 5, 0, 0, 0,
           0, 9, 8, 0, 0, 0, 0, 6, 0,
@@ -40,30 +42,32 @@ proximoZero i s
         | s !! (i + 1) == 0 = i + 1                 -- se possui zero, encontrou, logo retorna ela msm
         | otherwise         = proximoZero (i + 1) s -- caso contrario, recursao ate encontrar
 
--- Recursively try and brute-force solve the board given in s, starting at p,
--- with the set of possible solutions at that point.
--- 80 is the index of the last element in s
+-- [5, 3, 1, 2, 7, 4, 8, 9, 0, 
+-- 6, 0, 0, 1, 9, 5, 0, 0, 0,
+-- 0, 9, 8, 0, 0, 0, 0, 6, 0,
+-- 8, 0, 0, 0, 6, 0, 0, 0, 3,
+-- 4, 0, 0, 8, 0, 3, 0, 0, 1,
+-- 7, 0, 0, 0, 2, 0, 0, 0, 6,
+-- 0, 6, 0, 0, 0, 0, 2, 8, 0,
+-- 0, 0, 0, 4, 1, 9, 0, 0, 5,
+-- 0, 0, 0, 0, 8, 0, 0, 7, 9]
+resolver 80 s (x:[]) = inserirValor 80 s x         -- se ultima posicao com uma unica possibilidade de solução, insere essa solução
+resolver _  s []     = []                          -- se independente da posicao, nao tiver nenhuma solucao possivel
+resolver i s (x:xs)                                -- resolver o indice i, com a solução possivel (x)
+        | resolverAtual == [] = resolver i s xs       -- caso haja um erro de solução, a recursão volta e tenta a próxima solução, até dar certo para todos os casos
+        | otherwise        = resolverAtual            -- caso esteja indo tudo certo nas soluções, continue.
+  where resolverProx i s = resolver (proximoZero i s) s (solucoes (proximoZero i s) s)
+        resolverAtual    = resolverProx i (inserirValor i s x)
 
-solve 80 s []     = []
-solve 80 s (x:[]) = inserirValor 80 s x
-solve 80 s (x:_)  = []
-solve _  s []     = []
-solve p s (x:xs)  | solvedNext == [] = solve p s xs
-                  | otherwise        = solvedNext
-  where solveNext p s = solve (proximoZero p s) s (solucoes (proximoZero p s) s)
-        solvedNext    = solveNext p (inserirValor p s x)
+resolver' s = resolver 0 s (solucoes 0 s)
 
-solveIt s = solve 0 s (solucoes 0 s)
+-- concatena a string de saída
+concatenar _ (x:[])  = [x]
+concatenar c (x:xs)  = [x] ++ [c] ++ concatenar c xs
 
--- intersperse the element c through-out the string xs
-joinWith :: a -> [a] -> [a]
-joinWith _ (x:[])  = [x]
-joinWith c (x:xs)  = x : c : joinWith c xs
-
--- Pretty-print the board as a spaced out 9 x 9 square
-pPrint [] = []
-pPrint s  = spaceOut s ++ pPrint (drop 9 s)
+printarSudoku [] = []
+printarSudoku s  = spaceOut s ++ printarSudoku (drop 9 s)
   where showS s    = concatMap show s
         space      = ' '
         newline    = "\n"
-        spaceOut s = joinWith space (take 9 (showS s) ++ newline) 
+        spaceOut s = concatenar space (take 9 (showS s) ++ newline) 
